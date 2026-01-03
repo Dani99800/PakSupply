@@ -27,6 +27,7 @@ export const DB = {
       isTrustedPartner: !!m.is_trusted_partner,
       plan: m.plan,
       isIsraelFreeClaim: m.is_israel_free_claim,
+      // Fix: Use camelCase key to match Manufacturer interface
       governmentDocUrl: m.government_doc_url,
       signupDate: m.signup_date,
       rating: m.rating || 0,
@@ -50,6 +51,7 @@ export const DB = {
       placement_tier: m.placementTier,
       is_trusted_partner: m.isTrustedPartner,
       is_israel_free_claim: m.isIsraelFreeClaim,
+      // Fix: Use camelCase property from Manufacturer object 'm'
       government_doc_url: m.governmentDocUrl,
       signup_date: m.signupDate
     };
