@@ -1,38 +1,47 @@
 
 import { Manufacturer, Product, ManufacturerStatus, Category, ShopkeeperProfile, PlacementTier } from './types';
-import { CATEGORIES } from './constants';
+import { CATEGORIES, MOCK_MANUFACTURERS, MOCK_PRODUCTS } from './constants';
 import { supabase } from './supabase';
 
 export const DB = {
   getManufacturers: async (): Promise<Manufacturer[]> => {
+    let mfrs: Manufacturer[] = [];
     const { data, error } = await supabase.from('manufacturers').select('*');
+    
     if (error || !data) {
        const local = localStorage.getItem('ps_db_mfrs');
-       return local ? JSON.parse(local) : [];
+       mfrs = local ? JSON.parse(local) : [];
+    } else {
+      mfrs = data.map(m => ({
+        id: m.id,
+        email: m.email,
+        password: m.password,
+        phone: m.phone,
+        companyName: m.company_name,
+        ownerName: m.owner_name || '',
+        ownerPhone: m.owner_phone || '',
+        managerPhone: m.manager_phone || '',
+        address: m.address || '',
+        city: m.city,
+        status: m.status as ManufacturerStatus,
+        placementTier: (m.placement_tier as PlacementTier) || PlacementTier.BASIC,
+        isTrustedPartner: !!m.is_trusted_partner,
+        plan: m.plan,
+        isIsraelFreeClaim: m.is_israel_free_claim,
+        governmentDocUrl: m.government_doc_url,
+        signupDate: m.signup_date,
+        rating: m.rating || 0,
+        ratingCount: m.rating_count || 0
+      }));
     }
     
-    return data.map(m => ({
-      id: m.id,
-      email: m.email,
-      password: m.password,
-      phone: m.phone,
-      companyName: m.company_name,
-      ownerName: m.owner_name || '',
-      ownerPhone: m.owner_phone || '',
-      managerPhone: m.manager_phone || '',
-      address: m.address || '',
-      city: m.city,
-      status: m.status as ManufacturerStatus,
-      placementTier: (m.placement_tier as PlacementTier) || PlacementTier.BASIC,
-      isTrustedPartner: !!m.is_trusted_partner,
-      plan: m.plan,
-      isIsraelFreeClaim: m.is_israel_free_claim,
-      // Fix: Use camelCase key to match Manufacturer interface
-      governmentDocUrl: m.government_doc_url,
-      signupDate: m.signup_date,
-      rating: m.rating || 0,
-      ratingCount: m.rating_count || 0
-    }));
+    // Merge with mock data for demonstration
+    const merged = [...MOCK_MANUFACTURERS];
+    mfrs.forEach(m => {
+      if (!merged.find(x => x.id === m.id)) merged.push(m);
+    });
+    
+    return merged;
   },
 
   saveManufacturer: async (m: Manufacturer) => {
@@ -51,7 +60,6 @@ export const DB = {
       placement_tier: m.placementTier,
       is_trusted_partner: m.isTrustedPartner,
       is_israel_free_claim: m.isIsraelFreeClaim,
-      // Fix: Use camelCase property from Manufacturer object 'm'
       government_doc_url: m.governmentDocUrl,
       signup_date: m.signupDate
     };
@@ -91,6 +99,12 @@ export const DB = {
       })) as Product[];
     }
 
+    // Merge with mock products
+    const mergedProds = [...MOCK_PRODUCTS];
+    prods.forEach(p => {
+      if (!mergedProds.find(x => x.id === p.id)) mergedProds.push(p);
+    });
+
     const mfrs = await DB.getManufacturers();
     const tierWeights: Record<string, number> = { 
       [PlacementTier.PREMIUM]: 3, 
@@ -98,7 +112,7 @@ export const DB = {
       [PlacementTier.BASIC]: 1 
     };
 
-    return prods.sort((a, b) => {
+    return mergedProds.sort((a, b) => {
       const mfrA = mfrs.find(m => m.id === a.manufacturerId);
       const mfrB = mfrs.find(m => m.id === b.manufacturerId);
       const weightA = mfrA ? tierWeights[mfrA.placementTier] : 0;
