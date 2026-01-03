@@ -19,7 +19,7 @@ export default function Footer() {
         </div>
         <div>
           <h3 className="text-white font-bold mb-4">Support</h3>
-          <p>WhatsApp: 0346 3904137</p>
+          <p>WhatsApp: 0346 2904137</p>
           <p>Email: support@paksupply.pk</p>
         </div>
       </div>
