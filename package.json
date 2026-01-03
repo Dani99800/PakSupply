@@ -1,0 +1,26 @@
+
+{
+  "name": "paksupply-pk",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5",
+    "lucide-react": "^0.475.0",
+    "@supabase/supabase-js": "^2.48.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11",
+    "tailwindcss": "^3.4.1"
+  }
+}
