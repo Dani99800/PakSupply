@@ -1,5 +1,9 @@
 
 import { Category, PaymentPlan, Product, Manufacturer, ManufacturerStatus, PlacementTier } from './types';
+import { 
+  Soap, Trash2, Waves, Sparkles, Home, 
+  Smile, Cookie, Coffee, Package 
+} from 'lucide-react';
 
 export const ADMIN_WHATSAPP = "03463904137";
 
@@ -14,6 +18,18 @@ export const CATEGORIES: Category[] = [
   { id: '8', name: 'Beverages & Juices', enabled: true },
 ];
 
+export const CATEGORY_ICONS: Record<string, any> = {
+  'Bath Soap': Soap,
+  'Detergent (Powder / Bar)': Trash2,
+  'Dishwash & Kitchen Cleaning': Waves,
+  'Shampoo & Personal Care': Sparkles,
+  'Home & Surface Cleaning': Home,
+  'Toothpaste & Oral Care': Smile,
+  'Snacks & Biscuits': Cookie,
+  'Beverages & Juices': Coffee,
+  'All': Package
+};
+
 export const PLANS: PaymentPlan[] = [
   { id: 'intro', name: 'Introductory Trial', price: 5000, description: 'Valid until first order is generated' },
   { id: 'monthly', name: 'Standard Monthly', price: 10000, description: 'Billed monthly' },
@@ -21,7 +37,7 @@ export const PLANS: PaymentPlan[] = [
   { id: '12months', name: '12 Months Plan', price: 120000, description: 'Billed annually' },
 ];
 
-// Mock Manufacturers (Trusted Partners)
+// Mock Manufacturers (Trusted Partners) - 3 per core category
 export const MOCK_MANUFACTURERS: Manufacturer[] = [
   {
     id: 'm-1',
@@ -73,11 +89,46 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     signupDate: new Date().toISOString(),
     rating: 4.8,
     ratingCount: 210
+  },
+  {
+    id: 'm-4',
+    email: 'hello@khybersoaps.pk',
+    companyName: 'Khyber Pure Soaps',
+    phone: '03339998877',
+    ownerName: 'Abid Khan',
+    ownerPhone: '03339998877',
+    address: 'Hayatabad Industrial Estate, Peshawar',
+    city: 'Peshawar',
+    status: ManufacturerStatus.APPROVED,
+    placementTier: PlacementTier.PREMIUM,
+    isTrustedPartner: true,
+    isIsraelFreeClaim: true,
+    signupDate: new Date().toISOString(),
+    rating: 4.5,
+    ratingCount: 62
+  },
+  {
+    id: 'm-5',
+    email: 'orders@punjabfoods.pk',
+    companyName: 'Punjab Food Industries',
+    phone: '03445551122',
+    ownerName: 'M. Shafiq',
+    ownerPhone: '03445551122',
+    address: 'Ferozepur Road, Lahore',
+    city: 'Lahore',
+    status: ManufacturerStatus.APPROVED,
+    placementTier: PlacementTier.PREMIUM,
+    isTrustedPartner: true,
+    isIsraelFreeClaim: true,
+    signupDate: new Date().toISOString(),
+    rating: 4.9,
+    ratingCount: 340
   }
 ];
 
-// Mock Products
+// Comprehensive Mock Products
 export const MOCK_PRODUCTS: Product[] = [
+  // Bath Soap Category
   {
     id: 'p-1',
     manufacturerId: 'm-1',
@@ -93,19 +144,34 @@ export const MOCK_PRODUCTS: Product[] = [
     status: 'ACTIVE'
   },
   {
-    id: 'p-2',
-    manufacturerId: 'm-1',
-    manufacturerName: 'Indus Care Pakistan',
-    name: 'Anti-Dandruff Shampoo 400ml',
-    brand: 'HairGlow',
-    category: 'Shampoo & Personal Care',
-    price: 380,
-    description: 'Professional grade anti-dandruff formula with Aloe Vera.',
-    imageUrls: ['https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&q=80&w=800'],
+    id: 'p-401',
+    manufacturerId: 'm-4',
+    manufacturerName: 'Khyber Pure Soaps',
+    name: 'Khyber Rose Luxury Soap',
+    brand: 'KhyberPure',
+    category: 'Bath Soap',
+    price: 390,
+    description: 'Traditional rose scented luxury soap bars.',
+    imageUrls: ['https://images.unsplash.com/photo-1605264964521-324735175d9e?auto=format&fit=crop&q=80&w=800'],
     isIsraelFree: true,
     isIsraelFreeApproved: true,
     status: 'ACTIVE'
   },
+  {
+    id: 'p-402',
+    manufacturerId: 'm-3',
+    manufacturerName: 'Lahore Organics FMCG',
+    name: 'Activated Charcoal Soap',
+    brand: 'OrganicClean',
+    category: 'Bath Soap',
+    price: 550,
+    description: 'Deep cleansing charcoal soap for oily skin.',
+    imageUrls: ['https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&q=80&w=800'],
+    isIsraelFree: true,
+    isIsraelFreeApproved: true,
+    status: 'ACTIVE'
+  },
+  // Detergent Category
   {
     id: 'p-3',
     manufacturerId: 'm-2',
@@ -121,43 +187,59 @@ export const MOCK_PRODUCTS: Product[] = [
     status: 'ACTIVE'
   },
   {
-    id: 'p-4',
+    id: 'p-301',
     manufacturerId: 'm-3',
     manufacturerName: 'Lahore Organics FMCG',
-    name: 'Lemon Fresh Dishwash 500ml',
+    name: 'Bio-Friendly Washing Bar',
     brand: 'OrganicClean',
-    category: 'Dishwash & Kitchen Cleaning',
-    price: 180,
-    description: 'Grease cutting formula with natural lemon extracts.',
-    imageUrls: ['https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&q=80&w=800'],
+    category: 'Detergent (Powder / Bar)',
+    price: 120,
+    description: 'Natural ingredients that are soft on hands but tough on dirt.',
+    imageUrls: ['https://images.unsplash.com/photo-1590621466441-83ca23396761?auto=format&fit=crop&q=80&w=800'],
+    isIsraelFree: true,
+    isIsraelFreeApproved: true,
+    status: 'ACTIVE'
+  },
+  // Snacks & Biscuits
+  {
+    id: 'p-501',
+    manufacturerId: 'm-5',
+    manufacturerName: 'Punjab Food Industries',
+    name: 'Crunchy Cumin Biscuits (Carton)',
+    brand: 'PunjabTreats',
+    category: 'Snacks & Biscuits',
+    price: 2400,
+    description: 'Bulk carton of 24 packs. Best selling cumin flavored biscuits.',
+    imageUrls: ['https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&q=80&w=800'],
     isIsraelFree: true,
     isIsraelFreeApproved: true,
     status: 'ACTIVE'
   },
   {
-    id: 'p-5',
-    manufacturerId: 'm-3',
-    manufacturerName: 'Lahore Organics FMCG',
-    name: 'Natural Rose Water 200ml',
-    brand: 'OrganicClean',
+    id: 'p-502',
+    manufacturerId: 'm-5',
+    manufacturerName: 'Punjab Food Industries',
+    name: 'Tea Time Rusk (Pack of 12)',
+    brand: 'PunjabTreats',
+    category: 'Snacks & Biscuits',
+    price: 1800,
+    description: 'Golden baked crispy rusks for the perfect tea time.',
+    imageUrls: ['https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800'],
+    isIsraelFree: true,
+    isIsraelFreeApproved: true,
+    status: 'ACTIVE'
+  },
+  // Shampoo
+  {
+    id: 'p-2',
+    manufacturerId: 'm-1',
+    manufacturerName: 'Indus Care Pakistan',
+    name: 'Anti-Dandruff Shampoo 400ml',
+    brand: 'HairGlow',
     category: 'Shampoo & Personal Care',
-    price: 150,
-    description: 'Pure distillate of steam-distilled roses.',
-    imageUrls: ['https://images.unsplash.com/photo-1626450639915-0f86539a2d04?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-6',
-    manufacturerId: 'm-2',
-    manufacturerName: 'PakSuds Cleaning Solutions',
-    name: 'Floor Shine 1L',
-    brand: 'PakSuds',
-    category: 'Home & Surface Cleaning',
-    price: 320,
-    description: 'Kills 99.9% germs and leaves a jasmine scent.',
-    imageUrls: ['https://images.unsplash.com/photo-1584622781564-1d9876a13d00?auto=format&fit=crop&q=80&w=800'],
+    price: 380,
+    description: 'Professional grade anti-dandruff formula with Aloe Vera.',
+    imageUrls: ['https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&q=80&w=800'],
     isIsraelFree: true,
     isIsraelFreeApproved: true,
     status: 'ACTIVE'

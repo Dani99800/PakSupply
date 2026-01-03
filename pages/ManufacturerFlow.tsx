@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Package, Plus, X, Image as ImageIcon, Eye, EyeOff, 
+  Plus, X, Image as ImageIcon, Eye, EyeOff, 
   Building2, User, Phone, MapPin, ShieldCheck, Mail, Lock, 
-  ArrowRight, Clock, CheckCircle2, TrendingUp 
+  ArrowRight, Clock, CheckCircle2, TrendingUp, HelpCircle 
 } from 'lucide-react';
 import { Manufacturer, ManufacturerStatus, Product, PlacementTier } from '../types';
 import { DB } from '../store';
 import { Auth } from '../authStore';
+import { ADMIN_WHATSAPP } from '../constants';
 
 export default function ManufacturerFlow({ currentUser, setCurrentUser }: { 
   currentUser: Manufacturer | null, 
@@ -19,7 +20,6 @@ export default function ManufacturerFlow({ currentUser, setCurrentUser }: {
   const [loading, setLoading] = useState(false);
 
   // Registration State
-  const [isRegistering, setIsRegistering] = useState(true);
   const [regData, setRegData] = useState({
     email: '',
     password: '',
@@ -45,11 +45,18 @@ export default function ManufacturerFlow({ currentUser, setCurrentUser }: {
     e.preventDefault();
     setLoading(true);
     
-    // Fix: Added missing required 'ownerPhone' property by defaulting to the provided company phone.
+    // Bug Fix: Explicitly ensuring ownerPhone is present for Supabase payload
     const newMfr: Manufacturer = {
       id: 'm-' + Date.now(),
-      ...regData,
-      ownerPhone: regData.phone,
+      email: regData.email,
+      password: regData.password,
+      companyName: regData.companyName,
+      phone: regData.phone,
+      ownerName: regData.ownerName,
+      ownerPhone: regData.phone, // Default to company phone
+      address: regData.address,
+      city: regData.city,
+      isIsraelFreeClaim: regData.isIsraelFreeClaim,
       status: ManufacturerStatus.PENDING_APPROVAL,
       placementTier: PlacementTier.BASIC,
       isTrustedPartner: false,
@@ -210,13 +217,21 @@ export default function ManufacturerFlow({ currentUser, setCurrentUser }: {
             </div>
             <div className="bg-slate-50 p-6 rounded-3xl text-left border border-slate-100">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Next Step</p>
-              <p className="font-bold text-slate-900 uppercase text-xs">Payment Verification</p>
+              <p className="font-bold text-slate-900 uppercase text-xs">Verification Check</p>
             </div>
           </div>
           
-          <button onClick={() => Auth.logout()} className="mt-12 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-rose-600 transition-colors">
-            Cancel & Logout
-          </button>
+          <div className="mt-12 flex flex-col items-center gap-6">
+             <button 
+                onClick={() => window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=Hello, I have registered my company ${currentUser.companyName} and am waiting for approval.`, '_blank')}
+                className="flex items-center gap-2 text-emerald-600 font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform"
+             >
+                <HelpCircle className="w-5 h-5" /> Contact Admin Support
+             </button>
+             <button onClick={() => Auth.logout()} className="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-rose-600 transition-colors">
+                Cancel & Logout
+             </button>
+          </div>
         </div>
       </div>
     );

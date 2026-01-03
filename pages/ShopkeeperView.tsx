@@ -3,10 +3,10 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Search, ShieldCheck, MessageCircle, CheckCircle2, Building2, 
   UserCircle, Package, TrendingUp, X, MapPin, Star, ChevronLeft, 
-  ChevronRight, Filter, SortAsc, SortDesc, Eye, Info
+  ChevronRight, Filter, Eye, Info, Plus, Minus, Share2
 } from 'lucide-react';
 import { DB } from '../store';
-import { ADMIN_WHATSAPP } from '../constants';
+import { ADMIN_WHATSAPP, CATEGORY_ICONS } from '../constants';
 import { Product, Manufacturer, ShopkeeperProfile, PlacementTier } from '../types';
 
 const ProductCard = ({ p, mfr, onOrder, onQuickView }: { 
@@ -83,7 +83,7 @@ export default function ShopkeeperView() {
   const [search, setSearch] = useState('');
   const [cat, setCat] = useState('All');
   const [sortBy, setSortBy] = useState<'default' | 'priceLow' | 'priceHigh' | 'rating'>('default');
-  const [selectedMfr, setSelectedMfr] = useState<string | null>(null);
+  const [selectedMfrId, setSelectedMfrId] = useState<string | null>(null);
   const [israelFree, setIsraelFree] = useState(false);
   const [prods, setProds] = useState<Product[]>([]);
   const [mfrs, setMfrs] = useState<Manufacturer[]>([]);
@@ -91,6 +91,8 @@ export default function ShopkeeperView() {
   const [profile, setProfile] = useState<ShopkeeperProfile | null>(null);
   const [orderModal, setOrderModal] = useState<Product | null>(null);
   const [quickViewModal, setQuickViewModal] = useState<Product | null>(null);
+  const [mfrProfileModal, setMfrProfileModal] = useState<Manufacturer | null>(null);
+  const [orderQty, setOrderQty] = useState(1);
   const [coupon, setCoupon] = useState('');
   
   const categoryScrollRef = useRef<HTMLDivElement>(null);
@@ -110,9 +112,10 @@ export default function ShopkeeperView() {
     let result = prods.filter(p => {
       const mSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
                       p.brand.toLowerCase().includes(search.toLowerCase()) ||
-                      p.manufacturerName.toLowerCase().includes(search.toLowerCase());
+                      p.manufacturerName.toLowerCase().includes(search.toLowerCase()) ||
+                      p.description.toLowerCase().includes(search.toLowerCase());
       const mCat = cat === 'All' || p.category === cat;
-      const mMfr = selectedMfr ? (p.manufacturerId === selectedMfr) : true;
+      const mMfr = selectedMfrId ? (p.manufacturerId === selectedMfrId) : true;
       const mIF = israelFree ? (p.isIsraelFree && p.isIsraelFreeApproved) : true;
       return mSearch && mCat && mMfr && mIF;
     });
@@ -128,7 +131,7 @@ export default function ShopkeeperView() {
     }
 
     return result;
-  }, [search, cat, selectedMfr, israelFree, prods, sortBy, mfrs]);
+  }, [search, cat, selectedMfrId, israelFree, prods, sortBy, mfrs]);
 
   const trustedPartners = useMemo(() => mfrs.filter(m => m.isTrustedPartner), [mfrs]);
 
@@ -157,13 +160,16 @@ export default function ShopkeeperView() {
       `--------------------------\n` +
       `*Product:* ${target.name}\n` +
       `*Brand:* ${target.brand}\n` +
-      `*Wholesale Price:* Rs. ${target.price}` +
+      `*Order Quantity:* ${orderQty} Cartons/Units\n` +
+      `*Unit Price:* Rs. ${target.price}\n` +
+      `*Estimated Total:* Rs. ${target.price * orderQty}` +
       shopInfo + reward
     );
     
     window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, '_blank');
     setOrderModal(null);
     setQuickViewModal(null);
+    setOrderQty(1);
     setCoupon('');
   };
 
@@ -216,21 +222,21 @@ export default function ShopkeeperView() {
           ref={categoryScrollRef}
           className="flex overflow-x-auto gap-4 pb-4 px-2 scrollbar-hide snap-x snap-mandatory"
         >
-          <button 
-            onClick={() => setCat('All')}
-            className={`flex-shrink-0 snap-start px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border ${cat === 'All' ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-600'}`}
-          >
-            All Stock
-          </button>
-          {DB.getCategories().map(c => (
-            <button 
-              key={c.id} 
-              onClick={() => setCat(c.name)}
-              className={`flex-shrink-0 snap-start px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border whitespace-nowrap ${cat === c.name ? 'bg-emerald-600 text-white border-emerald-600 shadow-xl shadow-emerald-100' : 'bg-white text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-600'}`}
-            >
-              {c.name}
-            </button>
-          ))}
+          {['All', ...DB.getCategories().map(c => c.name)].map(catName => {
+            const Icon = CATEGORY_ICONS[catName] || Package;
+            return (
+              <button 
+                key={catName} 
+                onClick={() => setCat(catName)}
+                className={`flex-shrink-0 snap-start flex flex-col items-center justify-center gap-3 px-10 py-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest transition-all border whitespace-nowrap min-w-[140px] ${cat === catName ? 'bg-emerald-600 text-white border-emerald-600 shadow-xl shadow-emerald-100' : 'bg-white text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-600'}`}
+              >
+                <div className={`p-4 rounded-2xl ${cat === catName ? 'bg-white/20' : 'bg-slate-50 text-slate-400'}`}>
+                   <Icon className="w-6 h-6" />
+                </div>
+                {catName}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -280,19 +286,25 @@ export default function ShopkeeperView() {
              {trustedPartners.map(m => (
                <div 
                  key={m.id} 
-                 className={`flex-shrink-0 px-8 py-6 rounded-[2.5rem] border transition-all flex flex-col items-center justify-center gap-3 min-w-[180px] cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 ${selectedMfr === m.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-100'}`} 
-                 onClick={() => setSelectedMfr(selectedMfr === m.id ? null : m.id)}
+                 className={`flex-shrink-0 px-8 py-6 rounded-[2.5rem] border transition-all flex flex-col items-center justify-center gap-3 min-w-[180px] cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 ${selectedMfrId === m.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-100'}`} 
+                 onClick={() => {
+                   if (selectedMfrId === m.id) setMfrProfileModal(m);
+                   else setSelectedMfrId(m.id);
+                 }}
                >
-                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner ${selectedMfr === m.id ? 'bg-white/10' : 'bg-emerald-50 text-emerald-600'}`}>
+                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner ${selectedMfrId === m.id ? 'bg-white/10' : 'bg-emerald-50 text-emerald-600'}`}>
                    {m.companyName.charAt(0)}
                  </div>
                  <div className="text-center">
                     <span className="text-[10px] font-black uppercase block leading-tight">{m.companyName}</span>
                     <div className="flex items-center justify-center gap-1 mt-1">
                        <Star className="w-3 h-3 text-amber-400 fill-current" />
-                       <span className={`text-[9px] font-bold ${selectedMfr === m.id ? 'text-emerald-400' : 'text-slate-400'}`}>{m.rating?.toFixed(1) || '0.0'}</span>
+                       <span className={`text-[9px] font-bold ${selectedMfrId === m.id ? 'text-emerald-400' : 'text-slate-400'}`}>{m.rating?.toFixed(1) || '0.0'}</span>
                     </div>
                  </div>
+                 <button onClick={(e) => { e.stopPropagation(); setMfrProfileModal(m); }} className="p-1 rounded-full hover:bg-slate-100">
+                    <Info className="w-4 h-4 text-slate-300" />
+                 </button>
                </div>
              ))}
           </div>
@@ -317,6 +329,54 @@ export default function ShopkeeperView() {
           <Package className="w-16 h-16 text-slate-200 mx-auto mb-4" />
           <h3 className="text-xl font-black text-slate-900">No stock matches found</h3>
           <p className="text-slate-400">Try adjusting your filters or searching for specific brands.</p>
+        </div>
+      )}
+
+      {/* Manufacturer Profile Modal */}
+      {mfrProfileModal && (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+           <div className="bg-white rounded-[3rem] w-full max-w-lg p-10 shadow-2xl animate-fadeIn relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-emerald-600" />
+              <button onClick={() => setMfrProfileModal(null)} className="absolute top-6 right-6 p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="text-center mb-8">
+                 <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-[2rem] flex items-center justify-center mx-auto mb-4 font-black text-4xl shadow-lg border-4 border-white">
+                    {mfrProfileModal.companyName.charAt(0)}
+                 </div>
+                 <h2 className="text-3xl font-black text-slate-900 mb-1">{mfrProfileModal.companyName}</h2>
+                 <div className="flex items-center justify-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                    <MapPin className="w-4 h-4 text-emerald-600" /> {mfrProfileModal.city}
+                 </div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                 <div className="bg-slate-50 p-6 rounded-3xl border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                       <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                       <span className="text-sm font-black text-slate-900">Verified Local Manufacturer</span>
+                    </div>
+                    {mfrProfileModal.isTrustedPartner && (
+                      <span className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest animate-pulse">Trusted</span>
+                    )}
+                 </div>
+                 <div className="bg-slate-50 p-6 rounded-3xl border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                       <Star className="w-6 h-6 text-amber-500 fill-current" />
+                       <span className="text-sm font-black text-slate-900">Platform Rating</span>
+                    </div>
+                    <span className="text-lg font-black">{mfrProfileModal.rating?.toFixed(1)} / 5.0</span>
+                 </div>
+              </div>
+
+              <button 
+                onClick={() => { setSelectedMfrId(mfrProfileModal.id); setMfrProfileModal(null); }}
+                className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all"
+              >
+                View all products from {mfrProfileModal.companyName}
+              </button>
+           </div>
         </div>
       )}
 
@@ -389,9 +449,9 @@ export default function ShopkeeperView() {
         </div>
       )}
 
-      {/* Order Confirmation & Coupon Modal */}
+      {/* Order Confirmation Modal with Quantity Selector */}
       {orderModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[80] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[110] flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-[3rem] w-full max-w-md shadow-2xl space-y-6 relative animate-fadeIn overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-emerald-600" />
             <button 
@@ -403,7 +463,7 @@ export default function ShopkeeperView() {
             
             <div className="text-center">
               <h2 className="text-2xl font-black text-slate-900">Confirm Order</h2>
-              <p className="text-slate-500 font-medium">Direct lead to {orderModal.manufacturerName}</p>
+              <p className="text-slate-500 font-medium">Ordering from {orderModal.manufacturerName}</p>
             </div>
 
             <div className="bg-slate-50 p-6 rounded-3xl border space-y-3">
@@ -411,9 +471,17 @@ export default function ShopkeeperView() {
                   <span className="text-[10px] font-black text-slate-400 uppercase">Item</span>
                   <span className="text-sm font-bold">{orderModal.name}</span>
                </div>
-               <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase">Wholesale Price</span>
-                  <span className="text-lg font-black text-emerald-600">Rs. {orderModal.price}</span>
+               <div className="flex justify-between items-center pt-2">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Quantity (Cartons/Units)</span>
+                  <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-xl border">
+                     <button onClick={() => setOrderQty(Math.max(1, orderQty - 1))} className="text-emerald-600"><Minus className="w-4 h-4" /></button>
+                     <span className="font-black text-lg min-w-[20px] text-center">{orderQty}</span>
+                     <button onClick={() => setOrderQty(orderQty + 1)} className="text-emerald-600"><Plus className="w-4 h-4" /></button>
+                  </div>
+               </div>
+               <div className="flex justify-between items-center pt-3 border-t mt-3">
+                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Est. Total</span>
+                  <span className="text-xl font-black text-emerald-900">Rs. {orderModal.price * orderQty}</span>
                </div>
             </div>
 
@@ -428,33 +496,15 @@ export default function ShopkeeperView() {
                   placeholder="Enter code (e.g. Babar Azam)" 
                   className={`w-full p-5 bg-slate-50 border rounded-2xl outline-none font-bold transition-all ${coupon.trim().toLowerCase() === 'babar azam' ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/50' : 'focus:ring-2 focus:ring-emerald-500/20'}`} 
                 />
-                {coupon.trim().toLowerCase() === 'babar azam' && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-emerald-600 text-white p-1 rounded-full animate-bounce">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                )}
               </div>
-              {coupon.trim().toLowerCase() === 'babar azam' && (
-                <div className="bg-emerald-600 text-white p-4 rounded-2xl flex items-center gap-3 shadow-lg shadow-emerald-100 animate-fadeIn">
-                  <div className="bg-white/20 p-2 rounded-lg">🎁</div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest">Active Reward</p>
-                    <p className="font-bold">1 FREE Carton Bath Soap Added!</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             <button 
               onClick={() => handleOrderConfirm()} 
-              className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-lg shadow-xl hover:bg-emerald-700 transition-all active:scale-95"
+              className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-lg shadow-xl hover:bg-emerald-700 transition-all active:scale-95 flex items-center justify-center gap-3"
             >
-              Confirm & WhatsApp Admin
+              <MessageCircle className="w-6 h-6" /> Confirm & WhatsApp Admin
             </button>
-            
-            <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-wider">
-              Secure B2B Lead Generation Powered by PakSupply.pk
-            </p>
           </div>
         </div>
       )}
