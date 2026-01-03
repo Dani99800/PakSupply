@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { UserSession } from '../authStore';
-import { LogOut, User, LayoutDashboard, Store, UserCircle } from 'lucide-react';
-import { UserRole } from '../types';
+import { Link } from 'react-router-dom';
+import { UserSession } from './authStore';
+import { LogOut, LayoutDashboard, Store, UserCircle } from 'lucide-react';
+import { UserRole } from './types';
 
 interface Props {
   session: UserSession | null;
