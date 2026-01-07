@@ -10,7 +10,7 @@ export interface UserSession {
 }
 
 const ADMIN_EMAIL = "admin@paksupply.pk";
-const ADMIN_PASS = "PakSupply786!";
+const ADMIN_PASS = "PakAdmin@2025"; // New Secure Password
 
 export const Auth = {
   login: async (email: string, pass: string): Promise<UserSession | null> => {
@@ -50,7 +50,7 @@ export const Auth = {
   logout: () => {
     localStorage.removeItem('ps_session');
     localStorage.removeItem('ps_shopkeeper_active');
-    window.location.href = '/';
+    window.location.href = '#/';
   },
 
   getSession: (): UserSession | null => {

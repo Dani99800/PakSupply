@@ -9,12 +9,15 @@ import { DB } from '../store';
 import { ADMIN_WHATSAPP, CATEGORY_ICONS } from '../constants';
 import { Product, Manufacturer, ShopkeeperProfile, PlacementTier } from '../types';
 
-const ProductCard = ({ p, mfr, onOrder, onQuickView }: { 
-  p: Product, 
-  mfr?: Manufacturer, 
-  onOrder: (p: Product) => void,
-  onQuickView: (p: Product) => void
-}) => {
+// Defining props interface explicitly to resolve the 'key' property assignment error
+interface ProductCardProps {
+  p: Product;
+  mfr?: Manufacturer;
+  onOrder: (p: Product) => void;
+  onQuickView: (p: Product) => void;
+}
+
+const ProductCard = ({ p, mfr, onOrder, onQuickView }: ProductCardProps) => {
   const [imgIdx, setImgIdx] = useState(0);
 
   useEffect(() => {
@@ -166,7 +169,8 @@ export default function ShopkeeperView() {
       shopInfo + reward
     );
     
-    window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, '_blank');
+    const waNumber = target.orderWhatsApp || ADMIN_WHATSAPP;
+    window.open(`https://wa.me/${waNumber}?text=${msg}`, '_blank');
     setOrderModal(null);
     setQuickViewModal(null);
     setOrderQty(1);
@@ -366,7 +370,7 @@ export default function ShopkeeperView() {
                        <Star className="w-6 h-6 text-amber-500 fill-current" />
                        <span className="text-sm font-black text-slate-900">Platform Rating</span>
                     </div>
-                    <span className="text-lg font-black">{mfrProfileModal.rating?.toFixed(1)} / 5.0</span>
+                    <span className="text-lg font-black">{mfrProfileModal.rating?.toFixed(1) || '0.0'} / 5.0</span>
                  </div>
               </div>
 

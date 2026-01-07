@@ -37,6 +37,7 @@ export interface Product {
   isIsraelFree: boolean;
   isIsraelFreeApproved: boolean;
   status: 'ACTIVE' | 'DISABLED' | 'PENDING';
+  orderWhatsApp?: string; // Admin can set a custom number for their own products
 }
 
 export interface Manufacturer {

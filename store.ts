@@ -35,7 +35,6 @@ export const DB = {
       }));
     }
     
-    // Merge with mock data for demonstration
     const merged = [...MOCK_MANUFACTURERS];
     mfrs.forEach(m => {
       if (!merged.find(x => x.id === m.id)) merged.push(m);
@@ -79,9 +78,9 @@ export const DB = {
 
     await supabase.from('manufacturers').update(update).eq('id', id);
     const list = JSON.parse(localStorage.getItem('ps_db_mfrs') || '[]');
-    const m = list.find((x: any) => x.id === id);
-    if (m) {
-      Object.assign(m, props);
+    const localMfr = list.find((x: any) => x.id === id);
+    if (localMfr) {
+      Object.assign(localMfr, props);
       localStorage.setItem('ps_db_mfrs', JSON.stringify(list));
     }
   },
@@ -95,11 +94,11 @@ export const DB = {
     } else {
       prods = data.map(p => ({
         ...p,
-        imageUrls: typeof p.image_urls === 'string' ? JSON.parse(p.image_urls) : (p.image_urls || [])
+        imageUrls: typeof p.image_urls === 'string' ? JSON.parse(p.image_urls) : (p.image_urls || []),
+        orderWhatsApp: p.order_whatsapp
       })) as Product[];
     }
 
-    // Merge with mock products
     const mergedProds = [...MOCK_PRODUCTS];
     prods.forEach(p => {
       if (!mergedProds.find(x => x.id === p.id)) mergedProds.push(p);
@@ -123,9 +122,16 @@ export const DB = {
   },
 
   saveProduct: async (p: Product) => {
-    const payload = { ...p, image_urls: JSON.stringify(p.imageUrls) };
+    const payload = { 
+      ...p, 
+      image_urls: JSON.stringify(p.imageUrls),
+      order_whatsapp: p.orderWhatsApp
+    };
     // @ts-ignore
     delete payload.imageUrls;
+    // @ts-ignore
+    delete payload.orderWhatsApp;
+    
     await supabase.from('products').upsert(payload);
     const list = JSON.parse(localStorage.getItem('ps_db_prods') || '[]');
     const index = list.findIndex((item: any) => item.id === p.id);
@@ -158,7 +164,6 @@ export const DB = {
     localStorage.setItem('ps_db_shops', JSON.stringify(list));
     localStorage.setItem('ps_shopkeeper_active', JSON.stringify(profile));
     
-    // Also update current session if active
     const sessionStr = localStorage.getItem('ps_session');
     if (sessionStr) {
       const session = JSON.parse(sessionStr);
