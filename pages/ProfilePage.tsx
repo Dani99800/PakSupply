@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Store, MapPin, Phone, Save, CheckCircle, UserCircle, Camera, Mail } from 'lucide-react';
+import { Store, MapPin, Phone, Save, CheckCircle, UserCircle, Camera, Mail, Truck, ShoppingBag, Globe, QrCode } from 'lucide-react';
 import { DB } from '../store';
 import { ShopkeeperProfile } from '../types';
 
@@ -11,18 +11,21 @@ export default function ProfilePage() {
     shopName: '',
     ownerName: '',
     city: '',
+    area: '',
+    street: '',
     phone: '',
     address: '',
-    shopPhoto: ''
+    shopPhoto: '',
+    isDeliveryAvailable: false,
+    isPickupAvailable: true,
+    isOpen: true
   });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const existing = DB.getActiveShopkeeper();
-    if (existing) {
-      setProfile(existing);
-    }
+    if (existing) setProfile({...profile, ...existing});
     setLoading(false);
   }, []);
 
@@ -35,17 +38,13 @@ export default function ProfilePage() {
 
   const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) {
-      const r = new FileReader();
-      r.onloadend = () => setProfile({ ...profile, shopPhoto: r.result as string });
-      r.readAsDataURL(f);
-    }
+    if (f) { const r = new FileReader(); r.onloadend = () => setProfile({ ...profile, shopPhoto: r.result as string }); r.readAsDataURL(f); }
   };
 
   if (loading) return null;
 
   return (
-    <div className="max-w-2xl mx-auto py-12 animate-fadeIn">
+    <div className="max-w-4xl mx-auto py-12 animate-fadeIn px-4">
       <div className="bg-white p-10 md:p-16 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-emerald-600" />
         
@@ -63,91 +62,84 @@ export default function ProfilePage() {
                <input type="file" className="hidden" accept="image/*" onChange={onPhotoChange} />
             </label>
           </div>
-          <h1 className="text-3xl font-black text-slate-900">My Shop Profile</h1>
-          <p className="text-slate-500 font-medium">Verified business details for PakSupply.pk</p>
+          <h1 className="text-3xl font-black text-slate-900">Manage Your Shop</h1>
+          <p className="text-slate-500 font-medium">B2B and B2C Business Settings</p>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Shop Name</label>
-              <div className="relative">
-                <Store className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  required 
-                  value={profile.shopName}
-                  onChange={e => setProfile({...profile, shopName: e.target.value})}
-                  placeholder="Ali General Store" 
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold" 
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Owner Name</label>
-              <div className="relative">
-                <UserCircle className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  required 
-                  value={profile.ownerName}
-                  onChange={e => setProfile({...profile, ownerName: e.target.value})}
-                  placeholder="Full Name" 
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold" 
-                />
-              </div>
-            </div>
+        <form onSubmit={handleSave} className="space-y-10">
+          {/* General Info */}
+          <div className="space-y-6">
+             <h2 className="text-lg font-black uppercase tracking-widest text-emerald-600">General Information</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input required value={profile.shopName} onChange={e => setProfile({...profile, shopName: e.target.value})} placeholder="Shop Name" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" />
+                <input required value={profile.ownerName} onChange={e => setProfile({...profile, ownerName: e.target.value})} placeholder="Owner Name" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" />
+                <input required value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} placeholder="WhatsApp Number" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" />
+                <input required value={profile.city} onChange={e => setProfile({...profile, city: e.target.value})} placeholder="City (Karachi / Lahore)" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" />
+             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Shop Address</label>
-            <div className="relative">
-              <MapPin className="absolute left-5 top-5 w-5 h-5 text-slate-300" />
-              <textarea 
-                required 
-                value={profile.address}
-                onChange={e => setProfile({...profile, address: e.target.value})}
-                placeholder="Street name, Area, City" 
-                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold min-h-[100px]" 
-              />
-            </div>
+          {/* Location Targeting */}
+          <div className="space-y-6">
+             <h2 className="text-lg font-black uppercase tracking-widest text-emerald-600">Local Area Targeting</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Area / Colony</label>
+                   <input required value={profile.area} onChange={e => setProfile({...profile, area: e.target.value})} placeholder="e.g. Shah Faisal Colony" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border-2 border-emerald-50" />
+                </div>
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Street / Block</label>
+                   <input required value={profile.street} onChange={e => setProfile({...profile, street: e.target.value})} placeholder="e.g. Street 4, Green Town" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold border-2 border-emerald-50" />
+                </div>
+             </div>
+             <textarea required value={profile.address} onChange={e => setProfile({...profile, address: e.target.value})} placeholder="Full Detailed Address" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold h-24" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">City</label>
-              <input 
-                required 
-                value={profile.city}
-                onChange={e => setProfile({...profile, city: e.target.value})}
-                placeholder="Lahore / Karachi" 
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold" 
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Phone</label>
-              <div className="relative">
-                <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  required 
-                  value={profile.phone}
-                  onChange={e => setProfile({...profile, phone: e.target.value})}
-                  placeholder="03xx xxxxxxx" 
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold" 
-                />
-              </div>
-            </div>
+          {/* Service Toggles */}
+          <div className="space-y-6">
+             <h2 className="text-lg font-black uppercase tracking-widest text-emerald-600">Buyer Mode Features (B2C)</h2>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                  type="button"
+                  onClick={() => setProfile({...profile, isDeliveryAvailable: !profile.isDeliveryAvailable})}
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${profile.isDeliveryAvailable ? 'bg-emerald-50 border-emerald-500' : 'bg-white border-slate-100 opacity-60'}`}
+                >
+                   <Truck className={`w-8 h-8 ${profile.isDeliveryAvailable ? 'text-emerald-600' : 'text-slate-300'}`} />
+                   <span className="text-[10px] font-black uppercase">Home Delivery</span>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setProfile({...profile, isPickupAvailable: !profile.isPickupAvailable})}
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${profile.isPickupAvailable ? 'bg-emerald-50 border-emerald-500' : 'bg-white border-slate-100 opacity-60'}`}
+                >
+                   <ShoppingBag className={`w-8 h-8 ${profile.isPickupAvailable ? 'text-emerald-600' : 'text-slate-300'}`} />
+                   <span className="text-[10px] font-black uppercase">Pickup Store</span>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setProfile({...profile, isOpen: !profile.isOpen})}
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${profile.isOpen ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-200'}`}
+                >
+                   <Globe className={`w-8 h-8 ${profile.isOpen ? 'text-emerald-600' : 'text-rose-600'}`} />
+                   <span className="text-[10px] font-black uppercase">{profile.isOpen ? 'Store Live' : 'Store Offline'}</span>
+                </button>
+             </div>
           </div>
 
-          <button 
-            type="submit"
-            className={`w-full py-6 rounded-3xl font-black text-xl transition-all flex items-center justify-center gap-3 shadow-xl ${saved ? 'bg-emerald-50 text-emerald-600 shadow-none ring-1 ring-emerald-500' : 'bg-emerald-600 text-white shadow-emerald-100 hover:bg-emerald-700 active:scale-95'}`}
-          >
-            {saved ? (
-              <><CheckCircle className="w-6 h-6" /> Profile Updated!</>
-            ) : (
-              <><Save className="w-6 h-6" /> Save Store Details</>
-            )}
+          <button type="submit" className="w-full py-6 bg-emerald-600 text-white rounded-3xl font-black text-xl shadow-xl hover:bg-emerald-700 active:scale-95 transition-all">
+             {saved ? "Profile Updated Successfully!" : "Save Shop Settings"}
           </button>
         </form>
+
+        <div className="mt-12 p-8 bg-slate-900 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center gap-8">
+           <div className="bg-white p-4 rounded-3xl">
+              <QrCode className="w-20 h-20 text-slate-900" />
+           </div>
+           <div>
+              <h3 className="text-xl font-black mb-2">Your Shop QR Code</h3>
+              <p className="text-slate-400 text-sm mb-4">Print this and paste it at your shop. Customers can scan to order from home!</p>
+              <button onClick={() => window.open(`/#/shop/${profile.id}`, '_blank')} className="bg-white text-slate-900 px-6 py-2 rounded-xl text-xs font-bold uppercase">View Online Store</button>
+           </div>
+        </div>
       </div>
     </div>
   );

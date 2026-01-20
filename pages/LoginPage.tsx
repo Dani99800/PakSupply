@@ -37,9 +37,15 @@ export default function LoginPage({ onLogin, isAdminRoute = false }: { onLogin: 
       shopName: fd.get('shopName') as string,
       ownerName: fd.get('ownerName') as string,
       city: fd.get('city') as string,
+      // Added missing default properties for ShopkeeperProfile
+      area: '',
+      street: '',
       phone: fd.get('phone') as string,
       address: fd.get('address') as string,
-      shopPhoto: shopPhoto || undefined
+      shopPhoto: shopPhoto || undefined,
+      isDeliveryAvailable: false,
+      isPickupAvailable: true,
+      isOpen: true
     };
     const session = await Auth.registerShopkeeper(profile);
     onLogin(session);

@@ -2,7 +2,8 @@
 export enum UserRole {
   ADMIN = 'ADMIN',
   MANUFACTURER = 'MANUFACTURER',
-  SHOPKEEPER = 'SHOPKEEPER'
+  SHOPKEEPER = 'SHOPKEEPER',
+  BUYER = 'BUYER'
 }
 
 export enum ManufacturerStatus {
@@ -37,7 +38,27 @@ export interface Product {
   isIsraelFree: boolean;
   isIsraelFreeApproved: boolean;
   status: 'ACTIVE' | 'DISABLED' | 'PENDING';
-  orderWhatsApp?: string; // Admin can set a custom number for their own products
+  orderWhatsApp?: string;
+}
+
+// B2C Extensions
+export interface ShopProduct extends Partial<Product> {
+  shopId: string;
+  stockStatus: 'IN_STOCK' | 'OUT_OF_STOCK';
+  salePrice: number;
+}
+
+export interface ConsumerOrder {
+  id: string;
+  shopId: string;
+  customerName: string;
+  customerPhone: string;
+  items: { productId: string; name: string; qty: number; price: number }[];
+  total: number;
+  type: 'PICKUP' | 'DELIVERY';
+  address?: string;
+  status: 'PENDING' | 'ACCEPTED' | 'READY' | 'COMPLETED' | 'CANCELLED';
+  createdAt: string;
 }
 
 export interface Manufacturer {
@@ -53,7 +74,7 @@ export interface Manufacturer {
   city: string;
   status: ManufacturerStatus;
   placementTier: PlacementTier;
-  isTrustedPartner: boolean; // Managed manually by Admin
+  isTrustedPartner: boolean;
   plan?: string;
   isIsraelFreeClaim: boolean;
   governmentDocUrl?: string; 
@@ -69,18 +90,15 @@ export interface ShopkeeperProfile {
   shopName: string;
   ownerName: string;
   city: string;
+  area: string;      // New: Specific area like "Shah Faisal"
+  street: string;    // New: Specific street/block
   phone: string;
   address: string;
   shopPhoto?: string;
-}
-
-export interface Rating {
-  id: string;
-  manufacturerId: string;
-  shopkeeperId: string;
-  stars: number;
-  comment?: string;
-  date: string;
+  isDeliveryAvailable: boolean;
+  isPickupAvailable: boolean;
+  isOpen: boolean;
+  qrCodeUrl?: string;
 }
 
 export interface PaymentPlan {

@@ -15,6 +15,7 @@ interface ProductCardProps {
   mfr?: Manufacturer;
   onOrder: (p: Product) => void;
   onQuickView: (p: Product) => void;
+  key?: React.Key; // Added optional key to satisfy TS when used in map
 }
 
 const ProductCard = ({ p, mfr, onOrder, onQuickView }: ProductCardProps) => {

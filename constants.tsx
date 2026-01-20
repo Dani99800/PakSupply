@@ -1,5 +1,5 @@
 
-import { Category, PaymentPlan, Product, Manufacturer, ManufacturerStatus, PlacementTier } from './types';
+import { Category, PaymentPlan, Product, Manufacturer, ManufacturerStatus, PlacementTier, ShopkeeperProfile } from './types';
 import { 
   Droplets, Trash2, Waves, Sparkles, Home, 
   Smile, Cookie, Coffee, Package 
@@ -37,9 +37,85 @@ export const PLANS: PaymentPlan[] = [
   { id: '12months', name: '12 Months Plan', price: 120000, description: 'Billed annually' },
 ];
 
-// Mock Manufacturers (Trusted Partners)
+export const MOCK_SHOPS: ShopkeeperProfile[] = [
+  {
+    id: 'shop-khi-1',
+    email: 'ayaz@superstore.pk',
+    shopName: 'Ayaz Super Store',
+    ownerName: 'Ayaz Khan',
+    city: 'Karachi',
+    area: 'Shah Faisal Colony',
+    street: 'Street No 5, Green Town',
+    phone: '03462904137',
+    address: 'Plot 45, Near Bilal Masjid, Shah Faisal, Karachi',
+    shopPhoto: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&q=80&w=800',
+    isDeliveryAvailable: true,
+    isPickupAvailable: true,
+    isOpen: true
+  },
+  {
+    id: 'shop-lhr-1',
+    email: 'punjab@grocery.pk',
+    shopName: 'Lahore Grocery Hub',
+    ownerName: 'M. Naveed',
+    city: 'Lahore',
+    area: 'Gulberg III',
+    street: 'Main Market',
+    phone: '03001122334',
+    address: 'Shop 12, Gulberg Main Market, Lahore',
+    shopPhoto: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&q=80&w=800',
+    isDeliveryAvailable: true,
+    isPickupAvailable: true,
+    isOpen: true
+  },
+  {
+    id: 'shop-isb-1',
+    email: 'capital@essentials.pk',
+    shopName: 'Capital Essentials',
+    ownerName: 'Sajid Mir',
+    city: 'Islamabad',
+    area: 'F-7 Markaz',
+    street: 'Jinnah Super',
+    phone: '03112223344',
+    address: 'Basement 4, F-7 Markaz, Islamabad',
+    shopPhoto: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=800',
+    isDeliveryAvailable: false,
+    isPickupAvailable: true,
+    isOpen: true
+  },
+  {
+    id: 'shop-fsd-1',
+    email: 'lyallpur@grocers.pk',
+    shopName: 'Lyallpur Grocers',
+    ownerName: 'Usman Ghani',
+    city: 'Faisalabad',
+    area: 'Gole Market',
+    street: 'Clock Tower Sector',
+    phone: '03224445566',
+    address: 'Shop 88, Gole Market, Faisalabad',
+    shopPhoto: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800',
+    isDeliveryAvailable: true,
+    isPickupAvailable: true,
+    isOpen: true
+  },
+  {
+    id: 'shop-mul-1',
+    email: 'multan@mart.pk',
+    shopName: 'Sufi General Store',
+    ownerName: 'Kashif Ali',
+    city: 'Multan',
+    area: 'Cantt',
+    street: 'Aziz Shaheed Road',
+    phone: '03338887766',
+    address: 'Plot 12-B, Cantt Plaza, Multan',
+    shopPhoto: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800',
+    isDeliveryAvailable: true,
+    isPickupAvailable: true,
+    isOpen: true
+  }
+];
+
 export const MOCK_MANUFACTURERS: Manufacturer[] = [
-  // Soap & Personal Care Leaders
   {
     id: 'm-1',
     email: 'contact@induscare.pk',
@@ -90,116 +166,10 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     signupDate: new Date().toISOString(),
     rating: 4.8,
     ratingCount: 95
-  },
-  // Cleaning Solutions Experts
-  {
-    id: 'm-2',
-    email: 'info@paksuds.com',
-    companyName: 'PakSuds Cleaning Solutions',
-    phone: '03112223344',
-    ownerName: 'Imran Khan',
-    ownerPhone: '03112223344',
-    address: 'Industrial Estate, Multan',
-    city: 'Multan',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.7,
-    ratingCount: 85
-  },
-  {
-    id: 'm-7',
-    email: 'orders@cleanmaster.pk',
-    companyName: 'CleanMaster Chemical Co',
-    phone: '03215554433',
-    ownerName: 'Sajid Ali',
-    ownerPhone: '03215554433',
-    address: 'Faisalabad Industrial Zone',
-    city: 'Faisalabad',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.6,
-    ratingCount: 110
-  },
-  {
-    id: 'm-8',
-    email: 'info@superwash.pk',
-    companyName: 'SuperWash Detergents',
-    phone: '03456667788',
-    ownerName: 'Kamran Shah',
-    ownerPhone: '03456667788',
-    address: 'Hub Industrial Area, Lasbela',
-    city: 'Hub',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.4,
-    ratingCount: 78
-  },
-  // Snacks & Beverages Specialists
-  {
-    id: 'm-5',
-    email: 'orders@punjabfoods.pk',
-    companyName: 'Punjab Food Industries',
-    phone: '03445551122',
-    ownerName: 'M. Shafiq',
-    ownerPhone: '03445551122',
-    address: 'Ferozepur Road, Lahore',
-    city: 'Lahore',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.9,
-    ratingCount: 340
-  },
-  {
-    id: 'm-9',
-    email: 'info@sindhbakes.pk',
-    companyName: 'Sindh Bakes & Snacks',
-    phone: '03123334455',
-    ownerName: 'Yasir Ahmed',
-    ownerPhone: '03123334455',
-    address: 'Nooriabad Industrial Estate',
-    city: 'Nooriabad',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.7,
-    ratingCount: 156
-  },
-  {
-    id: 'm-10',
-    email: 'sales@frontierfoods.pk',
-    companyName: 'Frontier Food Co',
-    phone: '03310009988',
-    ownerName: 'Gul Khan',
-    ownerPhone: '03310009988',
-    address: 'Peshawar Road, Rawalpindi',
-    city: 'Rawalpindi',
-    status: ManufacturerStatus.APPROVED,
-    placementTier: PlacementTier.PREMIUM,
-    isTrustedPartner: true,
-    isIsraelFreeClaim: true,
-    signupDate: new Date().toISOString(),
-    rating: 4.8,
-    ratingCount: 204
   }
 ];
 
-// Comprehensive Mock Products
 export const MOCK_PRODUCTS: Product[] = [
-  // Bath Soap
   {
     id: 'p-1',
     manufacturerId: 'm-1',
@@ -238,138 +208,6 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 410,
     description: 'Invigorating lemon soap with natural glycerin.',
     imageUrls: ['https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-
-  // Detergent
-  {
-    id: 'p-3',
-    manufacturerId: 'm-2',
-    manufacturerName: 'PakSuds Cleaning Solutions',
-    name: 'Ultra Suds Detergent 1kg',
-    brand: 'PakSuds',
-    category: 'Detergent (Powder / Bar)',
-    price: 290,
-    description: 'High efficiency washing powder for tough stains.',
-    imageUrls: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-201',
-    manufacturerId: 'm-7',
-    manufacturerName: 'CleanMaster Chemical Co',
-    name: 'MasterBlast Washing Bar (Pack of 12)',
-    brand: 'MasterBlast',
-    category: 'Detergent (Powder / Bar)',
-    price: 1100,
-    description: 'Heavy duty washing bars for laundry and household cleaning.',
-    imageUrls: ['https://images.unsplash.com/photo-1590621466441-83ca23396761?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-202',
-    manufacturerId: 'm-8',
-    manufacturerName: 'SuperWash Detergents',
-    name: 'SuperWash Liquid Detergent 2L',
-    brand: 'SuperWash',
-    category: 'Detergent (Powder / Bar)',
-    price: 650,
-    description: 'Color-safe liquid detergent for premium fabrics.',
-    imageUrls: ['https://images.unsplash.com/photo-1610557892470-55d9e80e0bce?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-
-  // Snacks & Biscuits
-  {
-    id: 'p-501',
-    manufacturerId: 'm-5',
-    manufacturerName: 'Punjab Food Industries',
-    name: 'Crunchy Cumin Biscuits (Carton)',
-    brand: 'PunjabTreats',
-    category: 'Snacks & Biscuits',
-    price: 2400,
-    description: 'Bulk carton of 24 packs. Best selling cumin flavored biscuits.',
-    imageUrls: ['https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-701',
-    manufacturerId: 'm-9',
-    manufacturerName: 'Sindh Bakes & Snacks',
-    name: 'Pista Delight Cookies',
-    brand: 'SindhTreats',
-    category: 'Snacks & Biscuits',
-    price: 180,
-    description: 'Premium pistachio cookies with real nut pieces.',
-    imageUrls: ['https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-702',
-    manufacturerId: 'm-10',
-    manufacturerName: 'Frontier Food Co',
-    name: 'Frontier Spicy Nimko Mix 500g',
-    brand: 'FrontierSpices',
-    category: 'Snacks & Biscuits',
-    price: 320,
-    description: 'Authentic Peshawar style spicy nimko mix.',
-    imageUrls: ['https://images.unsplash.com/photo-1621939514649-280e2ee1d446?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-
-  // Beverages
-  {
-    id: 'p-801',
-    manufacturerId: 'm-5',
-    manufacturerName: 'Punjab Food Industries',
-    name: 'Mango Blast Nectar 1L',
-    brand: 'PunjabTreats',
-    category: 'Beverages & Juices',
-    price: 220,
-    description: 'Rich and pulpy mango nectar made from real Sindri mangoes.',
-    imageUrls: ['https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-802',
-    manufacturerId: 'm-9',
-    manufacturerName: 'Sindh Bakes & Snacks',
-    name: 'Fresh Orange Squash 750ml',
-    brand: 'SindhTreats',
-    category: 'Beverages & Juices',
-    price: 350,
-    description: 'Concentrated orange squash, perfect for refreshing summers.',
-    imageUrls: ['https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&q=80&w=800'],
-    isIsraelFree: true,
-    isIsraelFreeApproved: true,
-    status: 'ACTIVE'
-  },
-  {
-    id: 'p-803',
-    manufacturerId: 'm-10',
-    manufacturerName: 'Frontier Food Co',
-    name: 'Frontier Green Tea Packs (50 bags)',
-    brand: 'FrontierSpices',
-    category: 'Beverages & Juices',
-    price: 480,
-    description: 'Natural mountain-grown green tea from northern areas.',
-    imageUrls: ['https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&q=80&w=800'],
     isIsraelFree: true,
     isIsraelFreeApproved: true,
     status: 'ACTIVE'

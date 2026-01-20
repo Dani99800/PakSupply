@@ -1,13 +1,16 @@
 
-import { Manufacturer, Product, ManufacturerStatus, Category, ShopkeeperProfile, PlacementTier } from './types';
-import { CATEGORIES, MOCK_MANUFACTURERS, MOCK_PRODUCTS } from './constants';
+import { 
+  Manufacturer, Product, ManufacturerStatus, Category, 
+  ShopkeeperProfile, PlacementTier, ShopProduct, ConsumerOrder 
+} from './types';
+import { CATEGORIES, MOCK_MANUFACTURERS, MOCK_PRODUCTS, MOCK_SHOPS } from './constants';
 import { supabase } from './supabase';
 
 export const DB = {
+  // Existing B2B Methods
   getManufacturers: async (): Promise<Manufacturer[]> => {
     let mfrs: Manufacturer[] = [];
     const { data, error } = await supabase.from('manufacturers').select('*');
-    
     if (error || !data) {
        const local = localStorage.getItem('ps_db_mfrs');
        mfrs = local ? JSON.parse(local) : [];
@@ -29,41 +32,17 @@ export const DB = {
         plan: m.plan,
         isIsraelFreeClaim: m.is_israel_free_claim,
         governmentDocUrl: m.government_doc_url,
-        signupDate: m.signup_date,
+        signup_date: m.signup_date,
         rating: m.rating || 0,
-        ratingCount: m.rating_count || 0
+        rating_count: m.rating_count || 0
       }));
     }
-    
     const merged = [...MOCK_MANUFACTURERS];
-    mfrs.forEach(m => {
-      if (!merged.find(x => x.id === m.id)) merged.push(m);
-    });
-    
+    mfrs.forEach(m => { if (!merged.find(x => x.id === m.id)) merged.push(m); });
     return merged;
   },
 
   saveManufacturer: async (m: Manufacturer) => {
-    const payload = {
-      id: m.id,
-      email: m.email,
-      password: m.password,
-      phone: m.phone,
-      company_name: m.companyName,
-      owner_name: m.ownerName,
-      owner_phone: m.ownerPhone,
-      manager_phone: m.managerPhone,
-      address: m.address,
-      city: m.city,
-      status: m.status,
-      placement_tier: m.placementTier,
-      is_trusted_partner: m.isTrustedPartner,
-      is_israel_free_claim: m.isIsraelFreeClaim,
-      government_doc_url: m.governmentDocUrl,
-      signup_date: m.signupDate
-    };
-
-    await supabase.from('manufacturers').upsert(payload);
     const list = JSON.parse(localStorage.getItem('ps_db_mfrs') || '[]');
     const index = list.findIndex((item: any) => item.id === m.id);
     if (index > -1) list[index] = m; else list.push(m);
@@ -71,16 +50,10 @@ export const DB = {
   },
 
   updateManufacturerProp: async (id: string, props: Partial<Manufacturer>) => {
-    const update: any = {};
-    if (props.status) update.status = props.status;
-    if (props.isTrustedPartner !== undefined) update.is_trusted_partner = props.isTrustedPartner;
-    if (props.placementTier) update.placement_tier = props.placementTier;
-
-    await supabase.from('manufacturers').update(update).eq('id', id);
     const list = JSON.parse(localStorage.getItem('ps_db_mfrs') || '[]');
-    const localMfr = list.find((x: any) => x.id === id);
-    if (localMfr) {
-      Object.assign(localMfr, props);
+    const index = list.findIndex((item: any) => item.id === id);
+    if (index > -1) {
+      list[index] = { ...list[index], ...props };
       localStorage.setItem('ps_db_mfrs', JSON.stringify(list));
     }
   },
@@ -98,41 +71,12 @@ export const DB = {
         orderWhatsApp: p.order_whatsapp
       })) as Product[];
     }
-
     const mergedProds = [...MOCK_PRODUCTS];
-    prods.forEach(p => {
-      if (!mergedProds.find(x => x.id === p.id)) mergedProds.push(p);
-    });
-
-    const mfrs = await DB.getManufacturers();
-    const tierWeights: Record<string, number> = { 
-      [PlacementTier.PREMIUM]: 3, 
-      [PlacementTier.STANDARD]: 2, 
-      [PlacementTier.BASIC]: 1 
-    };
-
-    return mergedProds.sort((a, b) => {
-      const mfrA = mfrs.find(m => m.id === a.manufacturerId);
-      const mfrB = mfrs.find(m => m.id === b.manufacturerId);
-      const weightA = mfrA ? tierWeights[mfrA.placementTier] : 0;
-      const weightB = mfrB ? tierWeights[mfrB.placementTier] : 0;
-      if (weightB !== weightA) return weightB - weightA;
-      return b.id.localeCompare(a.id);
-    });
+    prods.forEach(p => { if (!mergedProds.find(x => x.id === p.id)) mergedProds.push(p); });
+    return mergedProds;
   },
 
   saveProduct: async (p: Product) => {
-    const payload = { 
-      ...p, 
-      image_urls: JSON.stringify(p.imageUrls),
-      order_whatsapp: p.orderWhatsApp
-    };
-    // @ts-ignore
-    delete payload.imageUrls;
-    // @ts-ignore
-    delete payload.orderWhatsApp;
-    
-    await supabase.from('products').upsert(payload);
     const list = JSON.parse(localStorage.getItem('ps_db_prods') || '[]');
     const index = list.findIndex((item: any) => item.id === p.id);
     if (index > -1) list[index] = p; else list.push(p);
@@ -140,21 +84,64 @@ export const DB = {
   },
 
   updateProductStatus: async (id: string, status: 'ACTIVE' | 'DISABLED' | 'PENDING', isApproved?: boolean) => {
-    const update: any = { status };
-    if (isApproved !== undefined) update.is_israel_free_approved = isApproved;
-    await supabase.from('products').update(update).eq('id', id);
     const list = JSON.parse(localStorage.getItem('ps_db_prods') || '[]');
-    const p = list.find((x: any) => x.id === id);
-    if (p) {
-      p.status = status;
-      if (isApproved !== undefined) p.isIsraelFreeApproved = isApproved;
+    const index = list.findIndex((item: any) => item.id === id);
+    if (index > -1) {
+      list[index].status = status;
+      if (isApproved !== undefined) list[index].isIsraelFreeApproved = isApproved;
       localStorage.setItem('ps_db_prods', JSON.stringify(list));
     }
   },
 
-  getShopkeeperProfiles: async (): Promise<ShopkeeperProfile[]> => {
+  // B2C Shop Management
+  getAllShops: async (): Promise<ShopkeeperProfile[]> => {
     const local = localStorage.getItem('ps_db_shops');
+    const dbShops = local ? JSON.parse(local) : [];
+    
+    // Merge mock shops with DB shops
+    const merged = [...MOCK_SHOPS];
+    dbShops.forEach((s: ShopkeeperProfile) => {
+      if (!merged.find(x => x.id === s.id)) merged.push(s);
+    });
+    return merged;
+  },
+
+  getShopkeeperProfiles: async (): Promise<ShopkeeperProfile[]> => {
+    return await DB.getAllShops();
+  },
+
+  getShopInventory: async (shopId: string): Promise<ShopProduct[]> => {
+    const key = `ps_inventory_${shopId}`;
+    const local = localStorage.getItem(key);
     return local ? JSON.parse(local) : [];
+  },
+
+  saveShopProduct: async (shopId: string, sp: ShopProduct) => {
+    const key = `ps_inventory_${shopId}`;
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    const idx = list.findIndex((x: any) => x.id === sp.id);
+    if (idx > -1) list[idx] = sp; else list.push(sp);
+    localStorage.setItem(key, JSON.stringify(list));
+  },
+
+  saveConsumerOrder: async (order: ConsumerOrder) => {
+    const list = JSON.parse(localStorage.getItem('ps_db_consumer_orders') || '[]');
+    list.push(order);
+    localStorage.setItem('ps_db_consumer_orders', JSON.stringify(list));
+  },
+
+  getShopOrders: async (shopId: string): Promise<ConsumerOrder[]> => {
+    const all = JSON.parse(localStorage.getItem('ps_db_consumer_orders') || '[]');
+    return all.filter((o: any) => o.shopId === shopId);
+  },
+
+  updateConsumerOrderStatus: async (orderId: string, status: ConsumerOrder['status']) => {
+    const all = JSON.parse(localStorage.getItem('ps_db_consumer_orders') || '[]');
+    const order = all.find((o: any) => o.id === orderId);
+    if (order) {
+      order.status = status;
+      localStorage.setItem('ps_db_consumer_orders', JSON.stringify(all));
+    }
   },
 
   saveShopkeeperProfile: (profile: ShopkeeperProfile) => {
@@ -163,15 +150,6 @@ export const DB = {
     if (index > -1) list[index] = profile; else list.push(profile);
     localStorage.setItem('ps_db_shops', JSON.stringify(list));
     localStorage.setItem('ps_shopkeeper_active', JSON.stringify(profile));
-    
-    const sessionStr = localStorage.getItem('ps_session');
-    if (sessionStr) {
-      const session = JSON.parse(sessionStr);
-      if (session.shopkeeperProfile && session.shopkeeperProfile.id === profile.id) {
-        session.shopkeeperProfile = profile;
-        localStorage.setItem('ps_session', JSON.stringify(session));
-      }
-    }
   },
 
   getActiveShopkeeper: (): ShopkeeperProfile | null => {
@@ -179,23 +157,5 @@ export const DB = {
     return data ? JSON.parse(data) : null;
   },
 
-  getCategories: (): Category[] => CATEGORIES,
-
-  submitRating: async (manufacturerId: string, stars: number) => {
-    const mfrs = await DB.getManufacturers();
-    const mfr = mfrs.find(m => m.id === manufacturerId);
-    if (mfr) {
-      const currentRating = mfr.rating || 0;
-      const currentCount = mfr.ratingCount || 0;
-      const newCount = currentCount + 1;
-      const newRating = ((currentRating * currentCount) + stars) / newCount;
-      await supabase.from('manufacturers').update({ rating: newRating, rating_count: newCount }).eq('id', manufacturerId);
-      const list = JSON.parse(localStorage.getItem('ps_db_mfrs') || '[]');
-      const localMfr = list.find((x: any) => x.id === manufacturerId);
-      if (localMfr) { localMfr.rating = newRating; localMfr.ratingCount = newCount; localStorage.setItem('ps_db_mfrs', JSON.stringify(list)); }
-      const localRatings = JSON.parse(localStorage.getItem('ps_ratings') || '{}');
-      localRatings[manufacturerId] = stars;
-      localStorage.setItem('ps_ratings', JSON.stringify(localRatings));
-    }
-  }
+  getCategories: (): Category[] => CATEGORIES
 };

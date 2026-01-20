@@ -9,8 +9,8 @@ import ShopkeeperView from './pages/ShopkeeperView';
 import ManufacturerFlow from './pages/ManufacturerFlow';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Contract from './pages/Contract';
+import BuyerView from './pages/BuyerView';
+import ShopStorefront from './pages/ShopStorefront';
 import ProfilePage from './pages/ProfilePage';
 
 export default function App() {
@@ -43,23 +43,18 @@ export default function App() {
     <Router>
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Navigation session={session} onLogout={Auth.logout} />
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="flex-grow">
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<ShopkeeperView />} />
+            {/* Buyer/B2C Mode */}
+            <Route path="/" element={<BuyerView />} />
+            <Route path="/shop/:shopId" element={<ShopStorefront />} />
+            
+            {/* Business/B2B Mode */}
+            <Route path="/business" element={<ShopkeeperView />} />
             <Route path="/login" element={<LoginPage onLogin={setSession} />} />
             <Route path="/signup" element={<ManufacturerFlow currentUser={session?.manufacturerProfile || null} setCurrentUser={handleSetManufacturer} />} />
-            <Route path="/gatekeeper" element={<LoginPage onLogin={setSession} isAdminRoute={true} />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/contract" element={<Contract />} />
+            <Route path="/profile" element={session?.role === UserRole.SHOPKEEPER ? <ProfilePage /> : <Navigate to="/login" />} />
             
-            {/* Shopkeeper Protected */}
-            <Route 
-              path="/profile" 
-              element={session?.role === UserRole.SHOPKEEPER ? <ProfilePage /> : <Navigate to="/login" />} 
-            />
-
-            {/* Protected Manufacturer Routes */}
             <Route 
               path="/manufacturer/*" 
               element={session?.role === UserRole.MANUFACTURER ? (
@@ -70,7 +65,6 @@ export default function App() {
               ) : <Navigate to="/login" />} 
             />
 
-            {/* Protected Admin Routes */}
             <Route 
               path="/admin/*" 
               element={session?.role === UserRole.ADMIN ? <AdminDashboard /> : <Navigate to="/" />} 
