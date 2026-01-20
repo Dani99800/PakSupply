@@ -15,6 +15,7 @@ export const DB = {
        const local = localStorage.getItem('ps_db_mfrs');
        mfrs = local ? JSON.parse(local) : [];
     } else {
+      // FIX: Mapping signup_date to signupDate to match the TypeScript interface
       mfrs = data.map(m => ({
         id: m.id,
         email: m.email,
@@ -32,9 +33,9 @@ export const DB = {
         plan: m.plan,
         isIsraelFreeClaim: m.is_israel_free_claim,
         governmentDocUrl: m.government_doc_url,
-        signup_date: m.signup_date,
+        signupDate: m.signup_date || new Date().toISOString(), // Fix: was signup_date
         rating: m.rating || 0,
-        rating_count: m.rating_count || 0
+        ratingCount: m.rating_count || 0
       }));
     }
     const merged = [...MOCK_MANUFACTURERS];
